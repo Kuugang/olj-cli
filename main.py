@@ -194,12 +194,11 @@ def apply(
 
 
 def jobs(
-    cookies: dict,
     search_filter: str | None = None,
     pages: int | None = None,
 ) -> list[dict] | None:
     """Scrape jobs and print as JSON."""
-    session = make_session(cookies)
+    session = make_session()
 
     def get_jobs_url(page: int, params: dict | None = None) -> str:
         url = JOBS_URL if page == 1 else f"{JOBS_URL}/{(page - 1) * 30}"
@@ -349,9 +348,6 @@ def parse_args() -> argparse.Namespace:
 
     # -- jobs --
     jobs_p = sub.add_parser("jobs", help="Search and scrape job listings")
-    jobs_p.add_argument(
-        "--cookies", required=True, help="JSON cookies string from `login`"
-    )
     jobs_p.add_argument("--filter", dest="search_filter", help="Keyword filter")
     jobs_p.add_argument("--pages", type=int, help="Number of pages to scrape")
 
@@ -385,9 +381,8 @@ def main() -> list | dict | None:
             apply_points=args.apply_points,
         )
 
-    elif args.command == "jobs":
+     elif args.command == "jobs":
         return jobs(
-            cookies=json.loads(args.cookies),
             search_filter=args.search_filter,
             pages=args.pages,
         )

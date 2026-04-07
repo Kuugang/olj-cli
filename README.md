@@ -60,12 +60,11 @@ python main.py apply \
 Search and scrape job listings with full descriptions.
 
 ```bash
-python main.py jobs --cookies "$COOKIES" --filter "python developer" --pages 3
+python main.py jobs --filter "python developer" --pages 3
 ```
 
 **Parameters:**
 
-- `--cookies`: JSON cookies string from the `login` command
 - `--filter` (optional): Keyword filter for search
 - `--pages` (optional): Number of pages to scrape (if not specified, scrapes until no jobs found)
 
@@ -99,7 +98,7 @@ python main.py apply --cookies <JSON> --job-url <url> --subject <subject> --mess
 Search and scrape job listings.
 
 ```bash
-python main.py jobs --cookies <JSON> [--filter <keyword>] [--pages <number>]
+python main.py jobs [--filter <keyword>] [--pages <number>]
 ```
 
 ## Debug
@@ -107,17 +106,17 @@ python main.py jobs --cookies <JSON> [--filter <keyword>] [--pages <number>]
 Enable debug logging for any command:
 
 ```bash
-python main.py --debug jobs --cookies "$COOKIES" --filter "react"
+python main.py --debug jobs --filter "react"
 ```
 
 ## Example Workflow
 
 ```bash
-# 1. Login and save cookies
-COOKIES=$(python main.py login --email you@example.com --password secret)
+# 1. Search for jobs (no authentication needed)
+python main.py jobs --filter "python developer" --pages 3
 
-# 2. Search for jobs
-python main.py jobs --cookies "$COOKIES" --filter "python developer" --pages 3
+# 2. Login to get cookies (if you want to apply)
+COOKIES=$(python main.py login --email you@example.com --password secret)
 
 # 3. Apply to a specific job
 python main.py apply \
