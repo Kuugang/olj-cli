@@ -7,6 +7,7 @@ A command-line tool to automate job applications and scraping on [OnlineJobs.ph]
 - **Login**: Authenticate with OnlineJobs.ph and export session cookies
 - **Apply**: Automatically apply to job postings with custom messages and contact info
 - **Jobs**: Search and scrape job listings with descriptions
+- **Proxy Support**: Route requests through HTTP/HTTPS proxies (with optional authentication)
 
 ## Installation
 
@@ -83,12 +84,14 @@ olj-cli jobs --filter "python developer" --pages 3
 
 ## Commands
 
+All commands support the `--proxy` option for routing through proxies.
+
 ### `login`
 
 Authenticate with OnlineJobs.ph and output session cookies as JSON.
 
 ```bash
-olj-cli login --email <email> --password <password>
+olj-cli [--proxy <proxy>] login --email <email> --password <password>
 ```
 
 **Environment Variables:**
@@ -101,7 +104,7 @@ olj-cli login --email <email> --password <password>
 Apply to a job posting using authenticated session.
 
 ```bash
-olj-cli apply --cookies <JSON> --job-url <url> --subject <subject> --message <message> --contact-info <info>
+olj-cli [--proxy <proxy>] apply --cookies <JSON> --job-url <url> --subject <subject> --message <message> --contact-info <info>
 ```
 
 ### `jobs`
@@ -109,7 +112,32 @@ olj-cli apply --cookies <JSON> --job-url <url> --subject <subject> --message <me
 Search and scrape job listings.
 
 ```bash
-olj-cli jobs [--filter <keyword>] [--pages <number>]
+olj-cli [--proxy <proxy>] jobs [--filter <keyword>] [--pages <number>]
+```
+
+## Proxy Configuration
+
+All commands support HTTP/HTTPS proxies. Use the `--proxy` argument in format:
+
+- **Without authentication**: `host:port`
+- **With authentication**: `host:port:username:password`
+
+### Examples
+
+```bash
+# Login through proxy (no auth)
+olj-cli --proxy "proxy.example.com:8080" login --email you@example.com --password secret
+
+# Apply to job through authenticated proxy
+olj-cli --proxy "proxy.example.com:8080:user:pass" apply \
+  --cookies "$COOKIES" \
+  --job-url "https://www.onlinejobs.ph/jobseekers/job/1604447" \
+  --subject "Applying for Senior Developer" \
+  --message "I would like to apply, thank you." \
+  --contact-info "Email: you@example.com | GitHub: yourhandle"
+
+# Scrape jobs through proxy
+olj-cli --proxy "10.0.0.1:3128:admin:password123" jobs --filter "python" --pages 2
 ```
 
 ## Debug

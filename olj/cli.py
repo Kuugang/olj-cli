@@ -41,11 +41,40 @@ HEADERS = {
 # ---------------------------------------------------------------------------
 
 
-def make_session(cookies: dict | None = None) -> requests.Session:
+def parse_proxy(proxy_str: str | None) -> dict | None:
+    """Parse proxy string in format 'host:port:user:password' or 'host:port'."""
+    if not proxy_str:
+        return None
+
+    parts = proxy_str.split(":")
+    if len(parts) == 2:
+        host, port = parts
+        return {"http": f"http://{host}:{port}", "https": f"http://{host}:{port}"}
+    elif len(parts) == 4:
+        host, port, user, password = parts
+        proxy_url = f"http://{user}:{password}@{host}:{port}"
+        return {"http": proxy_url, "https": proxy_url}
+    else:
+        logger.error(
+            f"Invalid proxy format: {proxy_str}. Use 'host:port' or 'host:port:user:password'"
+        )
+        raise SystemExit(1)
+
+
+def make_session(
+    cookies: dict | None = None, proxy: str | None = None
+) -> requests.Session:
     session = requests.Session(impersonate="chrome")
     session.headers.update(HEADERS)
     if cookies:
         session.cookies.update(cookies)
+    if proxy:
+        proxy_dict = parse_proxy(proxy)
+        if proxy_dict:
+            session.proxies.update(proxy_dict)
+            logger.debug(
+                f"Proxy configured: {proxy.split(':')[0]}:{proxy.split(':')[1]}"
+            )
     return session
 
 
@@ -62,7 +91,7 @@ def get_input_value(soup: BeautifulSoup, name: str) -> str | None:
 # ---------------------------------------------------------------------------
 
 
-def login(email: str, password: str) -> dict | None:
+def login(email: str, password: str, proxy: str | None = None) -> dict | None:
     """Login and print cookies as JSON."""
 
     def login_failed(html: str) -> bool:
@@ -76,7 +105,7 @@ def login(email: str, password: str) -> dict | None:
             return True
         return False
 
-    session = make_session()
+    session = make_session(proxy=proxy)
 
     logger.info("Fetching CSRF token from login page...")
     resp = session.get(LOGIN_URL)
@@ -115,6 +144,7 @@ def apply(
     message: str,
     contact_info: str,
     apply_points: int = 1,
+    proxy: str | None = None,
 ) -> None:
     """Apply to a job using saved cookies."""
 
@@ -128,7 +158,7 @@ def apply(
             return True
         return False
 
-    session = make_session(cookies)
+    session = make_session(cookies, proxy=proxy)
 
     # Step 1: Job page → contact_email, job_id, back_id
     logger.info(f"Fetching job page: {job_url}")
@@ -199,9 +229,10 @@ def apply(
 def jobs(
     search_filter: str | None = None,
     pages: int | None = None,
+    proxy: str | None = None,
 ) -> list[dict] | None:
     """Scrape jobs and print as JSON."""
-    session = make_session()
+    session = make_session(proxy=proxy)
 
     def get_jobs_url(page: int, params: dict | None = None) -> str:
         url = JOBS_URL if page == 1 else f"{JOBS_URL}/{(page - 1) * 30}"
@@ -322,6 +353,10 @@ def parse_args() -> argparse.Namespace:
         formatter_class=argparse.RawTextHelpFormatter,
     )
     parser.add_argument("--debug", action="store_true", help="Enable debug logging")
+    parser.add_argument(
+        "--proxy",
+        help="Proxy in format 'host:port' or 'host:port:user:password'",
+    )
 
     sub = parser.add_subparsers(dest="command", required=True)
 
@@ -372,7 +407,7 @@ def main() -> list | dict | None:
                 "--email and --password are required (or set OLJ_EMAIL / OLJ_PASSWORD)"
             )
             raise SystemExit(1)
-        return login(email, password)
+        return login(email, password, proxy=args.proxy)
 
     elif args.command == "apply":
         apply(
@@ -382,12 +417,14 @@ def main() -> list | dict | None:
             message=args.message,
             contact_info=args.contact_info,
             apply_points=args.apply_points,
+            proxy=args.proxy,
         )
 
     elif args.command == "jobs":
         return jobs(
             search_filter=args.search_filter,
             pages=args.pages,
+            proxy=args.proxy,
         )
 
 
