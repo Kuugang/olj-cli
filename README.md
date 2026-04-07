@@ -12,14 +12,25 @@ A command-line tool to automate job applications and scraping on [OnlineJobs.ph]
 
 ### Requirements
 
-- Python 3.8+
-- Dependencies: `requests`, `beautifulsoup4`, `curl-cffi`
+- Python 3.11+
 
-### Setup
+### Option 1: Install from PyPI (Recommended)
 
 ```bash
-pip install -r requirements.txt
+pip install olj-cli
 ```
+
+This will install the `olj-cli` command-line tool globally.
+
+### Option 2: Clone and Install from Source
+
+```bash
+git clone https://github.com/Kuugang/olj-cli.git
+cd olj-cli
+pip install -e .
+```
+
+This will install the package in development mode.
 
 ## Example Usage
 
@@ -28,7 +39,7 @@ pip install -r requirements.txt
 Authenticate and save your session cookies for use in other commands.
 
 ```bash
-COOKIES=$(python main.py login --email you@example.com --password secret)
+COOKIES=$(olj-cli login --email you@example.com --password secret)
 ```
 
 This prints the cookies as JSON to stdout, which you can store in the `COOKIES` variable.
@@ -38,10 +49,10 @@ This prints the cookies as JSON to stdout, which you can store in the `COOKIES` 
 Submit an application to a specific job posting.
 
 ```bash
-python main.py apply \
+olj-cli apply \
   --cookies "$COOKIES" \
-  --job-url "https://www.onlinejobs.ph/jobseekers/job/12345" \
-  --subject "Applying for Part time developer" \
+  --job-url "https://www.onlinejobs.ph/jobseekers/job/1604447" \
+  --subject "Applying for Senior Developer" \
   --message "I would like to apply, thank you." \
   --contact-info "Email: you@example.com | GitHub: yourhandle"
 ```
@@ -60,7 +71,7 @@ python main.py apply \
 Search and scrape job listings with full descriptions.
 
 ```bash
-python main.py jobs --filter "python developer" --pages 3
+olj-cli jobs --filter "python developer" --pages 3
 ```
 
 **Parameters:**
@@ -77,7 +88,7 @@ python main.py jobs --filter "python developer" --pages 3
 Authenticate with OnlineJobs.ph and output session cookies as JSON.
 
 ```bash
-python main.py login --email <email> --password <password>
+olj-cli login --email <email> --password <password>
 ```
 
 **Environment Variables:**
@@ -90,7 +101,7 @@ python main.py login --email <email> --password <password>
 Apply to a job posting using authenticated session.
 
 ```bash
-python main.py apply --cookies <JSON> --job-url <url> --subject <subject> --message <message> --contact-info <info>
+olj-cli apply --cookies <JSON> --job-url <url> --subject <subject> --message <message> --contact-info <info>
 ```
 
 ### `jobs`
@@ -98,7 +109,7 @@ python main.py apply --cookies <JSON> --job-url <url> --subject <subject> --mess
 Search and scrape job listings.
 
 ```bash
-python main.py jobs [--filter <keyword>] [--pages <number>]
+olj-cli jobs [--filter <keyword>] [--pages <number>]
 ```
 
 ## Debug
@@ -106,23 +117,23 @@ python main.py jobs [--filter <keyword>] [--pages <number>]
 Enable debug logging for any command:
 
 ```bash
-python main.py --debug jobs --filter "react"
+olj-cli --debug jobs --filter "react"
 ```
 
 ## Example Workflow
 
 ```bash
 # 1. Search for jobs (no authentication needed)
-python main.py jobs --filter "python developer" --pages 3
+olj-cli jobs --filter "python developer" --pages 3
 
 # 2. Login to get cookies (if you want to apply)
-COOKIES=$(python main.py login --email you@example.com --password secret)
+COOKIES=$(olj-cli login --email you@example.com --password secret)
 
 # 3. Apply to a specific job
-python main.py apply \
+olj-cli apply \
   --cookies "$COOKIES" \
   --job-url "https://www.onlinejobs.ph/jobseekers/job/1604447" \
-  --subject "Applying for Senior Magento 2 Developer" \
+  --subject "Applying for Senior Developer" \
   --message "I would like to apply, thank you." \
   --contact-info "Email: you@example.com | GitHub: yourhandle"
 ```
