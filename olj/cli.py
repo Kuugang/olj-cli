@@ -381,7 +381,7 @@ def main() -> list | dict | None:
             apply_points=args.apply_points,
         )
 
-     elif args.command == "jobs":
+    elif args.command == "jobs":
         return jobs(
             search_filter=args.search_filter,
             pages=args.pages,

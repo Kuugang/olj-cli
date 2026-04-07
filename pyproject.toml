@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "olj-cli"
+version = "0.1.0"
+description = "A command-line tool to automate job applications and scraping on OnlineJobs.ph"
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [{name = "kuugang", email = "jakebajo21@gmail.com"}]
+requires-python = ">=3.11"
+keywords = ["cli", "automation", "scraping", "jobsearch", "onlinejobs"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Office/Business",
+    "Topic :: Utilities",
+]
+dependencies = [
+    "beautifulsoup4>=4.14.3",
+    "curl-cffi>=0.15.0",
+    "requests>=2.33.1",
+]
+
+[project.urls]
+Repository = "https://github.com/Kuugang/olj-cli"
+Homepage = "https://github.com/Kuugang/olj-cli"
+"Bug Tracker" = "https://github.com/Kuugang/olj-cli/issues"
+
+[project.scripts]
+olj-cli = "olj.cli:main"
+
+[tool.setuptools]
+packages = ["olj"]
