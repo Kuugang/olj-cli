@@ -150,12 +150,15 @@ def apply(
     logger.info("Fetching apply form...")
     apply_resp = session.post(
         APPLY_URL,
-        data={
-            "csrf_token": csrf_token,
-            "contact_email": contact_email,
-            "job_id": job_id,
-            "back_id": back_id,
-        },
+        data=cast(
+            dict[str, str],
+            {
+                "csrf_token": csrf_token,
+                "contact_email": contact_email,
+                "job_id": job_id,
+                "back_id": back_id,
+            },
+        ),
     )
     apply_soup = BeautifulSoup(apply_resp.text, "html.parser")
 
