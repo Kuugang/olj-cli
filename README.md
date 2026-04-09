@@ -72,13 +72,16 @@ olj-cli apply \
 Search and scrape job listings with full descriptions.
 
 ```bash
-olj-cli jobs --filter "python developer" --pages 3
+olj-cli jobs --filter "python developer"        # Scrape first page only
+olj-cli jobs --filter "python developer" --all  # Scrape all pages
+olj-cli jobs --all --page 2                     # Start from page 2 and scrape all
 ```
 
 **Parameters:**
 
 - `--filter` (optional): Keyword filter for search
-- `--pages` (optional): Number of pages to scrape (if not specified, scrapes until no jobs found)
+- `--page` (optional): Starting page number (default: 1)
+- `--all` (optional): Scrape all pages until no jobs found (default: only first page)
 
 **Output:** JSON array of jobs with `url`, `title`, `posted_by`, `posted_on`, `rate`, and `description`
 
@@ -112,7 +115,7 @@ olj-cli [--proxy <proxy>] apply --cookies <JSON> --job-url <url> --subject <subj
 Search and scrape job listings.
 
 ```bash
-olj-cli [--proxy <proxy>] jobs [--filter <keyword>] [--pages <number>]
+olj-cli [--proxy <proxy>] jobs [--filter <keyword>] [--page <number>] [--all]
 ```
 
 ## Proxy Configuration
@@ -137,7 +140,7 @@ olj-cli --proxy "proxy.example.com:8080:user:pass" apply \
   --contact-info "Email: you@example.com | GitHub: yourhandle"
 
 # Scrape jobs through proxy
-olj-cli --proxy "10.0.0.1:3128:admin:password123" jobs --filter "python" --pages 2
+olj-cli --proxy "10.0.0.1:3128:admin:password123" jobs --filter "python" --all
 ```
 
 ## Debug
@@ -152,7 +155,7 @@ olj-cli --debug jobs --filter "react"
 
 ```bash
 # 1. Search for jobs (no authentication needed)
-olj-cli jobs --filter "python developer" --pages 3
+olj-cli jobs --filter "python developer" --all
 
 # 2. Login to get cookies (if you want to apply)
 COOKIES=$(olj-cli login --email you@example.com --password secret)

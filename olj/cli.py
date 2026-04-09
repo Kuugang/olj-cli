@@ -228,7 +228,8 @@ def apply(
 
 def jobs(
     search_filter: str | None = None,
-    pages: int | None = None,
+    page: int = 1,
+    all_pages: bool = False,
     proxy: str | None = None,
 ) -> list[dict] | None:
     """Scrape jobs and print as JSON."""
@@ -321,21 +322,20 @@ def jobs(
 
     all_jobs: list[dict] = []
 
-    if pages:
-        for page in range(1, pages + 1):
-            all_jobs.extend(fetch_page(page))
-            logger.info(f"Total jobs collected so far: {len(all_jobs)}")
-    else:
-        logger.info("No page limit — scraping until no jobs found")
-        page = 1
+    if all_pages:
+        logger.info("Scraping all pages until no jobs found")
+        page_num = page
         while True:
-            page_jobs = fetch_page(page)
+            page_jobs = fetch_page(page_num)
             if not page_jobs:
-                logger.info(f"No jobs found on page {page}. Stopping.")
+                logger.info(f"No jobs found on page {page_num}. Stopping.")
                 break
             all_jobs.extend(page_jobs)
             logger.info(f"Total jobs collected so far: {len(all_jobs)}")
-            page += 1
+            page_num += 1
+    else:
+        logger.info(f"Scraping page {page}")
+        all_jobs.extend(fetch_page(page))
 
     logger.info(f"Scraping complete. Total jobs: {len(all_jobs)}")
     print(json.dumps(all_jobs, indent=2))
@@ -387,7 +387,12 @@ def parse_args() -> argparse.Namespace:
     # -- jobs --
     jobs_p = sub.add_parser("jobs", help="Search and scrape job listings")
     jobs_p.add_argument("--filter", dest="search_filter", help="Keyword filter")
-    jobs_p.add_argument("--pages", type=int, help="Number of pages to scrape")
+    jobs_p.add_argument(
+        "--page", type=int, default=1, help="Starting page number (default: 1)"
+    )
+    jobs_p.add_argument(
+        "--all", action="store_true", help="Scrape all pages (default: only first page)"
+    )
 
     return parser.parse_args()
 
@@ -423,7 +428,8 @@ def main() -> list | dict | None:
     elif args.command == "jobs":
         return jobs(
             search_filter=args.search_filter,
-            pages=args.pages,
+            page=args.page,
+            all_pages=args.all,
             proxy=args.proxy,
         )
 
